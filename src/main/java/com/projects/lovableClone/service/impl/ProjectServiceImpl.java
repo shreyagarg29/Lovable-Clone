@@ -13,6 +13,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.List;
 
 @Service
@@ -55,16 +56,36 @@ public class ProjectServiceImpl implements ProjectService {
     }
     @Override
     public ProjectResponse getUserProjectsById(Long id, Long userId) {
-        return null;
+
+        Project project = getAccessibleProjectById(id, userId);
+        return projectMapper.toProjectResponse(project);
     }
 
     @Override
-    public ProjectResponse updateProject(Long id, Long userId) {
-        return null;
+    public ProjectResponse updateProject(Long id, ProjectRequest request, Long userId) {
+        //TODO: See why updated time is not coming in PATCH mapping
+        Project project = getAccessibleProjectById(id, userId);
+
+        project.setProjectName(request.projectName());
+        project = projectRepository.save(project);
+
+        return projectMapper.toProjectResponse(project);
     }
 
     @Override
     public void setDelete(Long id, Long userId) {
+        Project project = getAccessibleProjectById(id, userId);
 
+        if(!project.getOwner().getId().equals(userId)){
+            throw new RuntimeException("You are not allowed to update name");
+        }
+
+        project.setDeletedAt(Instant.now());
+        projectRepository.save(project);
+    }
+
+    //Internal functions
+    public Project getAccessibleProjectById(Long projectId, Long userId){
+        return projectRepository.findAccessibleProjectById(projectId, userId).orElseThrow();
     }
 }
