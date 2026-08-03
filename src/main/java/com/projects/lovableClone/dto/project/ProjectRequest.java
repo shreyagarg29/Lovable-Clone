@@ -1,4 +1,7 @@
 package com.projects.lovableClone.dto.project;
 
-public record ProjectRequest(String projectName) {
+import jakarta.validation.constraints.NotBlank;
+
+public record ProjectRequest(
+        @NotBlank String projectName) {
 }
