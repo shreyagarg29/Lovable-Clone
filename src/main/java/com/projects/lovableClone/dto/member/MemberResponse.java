@@ -5,7 +5,7 @@ import com.projects.lovableClone.enums.ProjectRole;
 import java.time.Instant;
 
 public record MemberResponse(
-        Long id,
+        Long userId,
         String email,
         String name,
         String avatarUrl,
